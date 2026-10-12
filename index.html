@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Αρχείο Περιοδικού Πολύγυρος</title>
+<meta name="description" content="Αναζήτηση σε όλα τα τεύχη του περιοδικού Πολύγυρος του Λαογραφικού Ομίλου Πολυγύρου">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Fira+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single reading column like a periodical's index, masthead + search on top, tabs below; results read as index cards in a list. */
+:root{
+  --bg:#f4f5f1; --paper:#ffffff; --ink:#1c2925; --muted:#5b6964; --line:#d8ddd5;
+  --accent:#8b2a3a; --accent-soft:#f3e3e5; --mark:#f6e3a8; --olive:#4d5d33;
+  --f-display:"GFS Didot","Didot","Bodoni 72",Georgia,serif;
+  --f-body:"Literata",Georgia,"Times New Roman",serif;
+  --f-ui:"Fira Sans","Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121816; --paper:#1a2220; --ink:#e5e9e3; --muted:#9aa8a2; --line:#2e3a36;
+  --accent:#e58b99; --accent-soft:#3a2328; --mark:#5c4b17; --olive:#b4c58f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --paper:#1a2220; --ink:#e5e9e3; --muted:#9aa8a2; --line:#2e3a36;
+  --accent:#e58b99; --accent-soft:#3a2328; --mark:#5c4b17; --olive:#b4c58f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:900px;margin:0 auto;padding-inline:18px;padding-block:22px 48px}
+a{color:var(--accent)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header.mast{display:grid;gap:6px;border-bottom:3px double var(--ink);padding-bottom:14px}
+.eyebrow{font-family:var(--f-ui);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,6vw,52px);line-height:1.05;margin:0;text-wrap:balance}
+h1 span{color:var(--accent)}
+.sub{font-family:var(--f-ui);font-size:14px;color:var(--muted);margin:0}
+
+.searchbar{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap}
+.searchbar input{flex:1 1 260px;min-width:0;padding:12px 14px;border:1.5px solid var(--ink);background:var(--paper);border-radius:2px;font-family:var(--f-body);font-size:17px}
+.btn{font-family:var(--f-ui);font-weight:500;font-size:14px;padding:10px 16px;border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:2px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-family:var(--f-ui);font-size:13px;align-items:center}
+.chips .lbl{color:var(--muted)}
+.chip{border:1px solid var(--line);background:var(--paper);padding:4px 10px;border-radius:99px;cursor:pointer}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+
+nav.tabs{display:flex;gap:2px;margin-top:22px;border-bottom:1px solid var(--line);font-family:var(--f-ui);overflow-x:auto}
+nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;color:var(--muted);font-weight:500;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+.status{font-family:var(--f-ui);font-size:13px;color:var(--muted);margin:14px 0 6px;min-height:20px}
+.progress{height:3px;background:var(--line);margin-top:6px}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+
+h2.sec{font-family:var(--f-ui);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--olive);margin:22px 0 8px;font-weight:600}
+.list{display:grid;gap:0;border-top:1px solid var(--line)}
+.item{display:grid;grid-template-columns:70px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.issue-no{font-family:var(--f-display);font-size:30px;line-height:1;text-align:center;color:var(--accent)}
+.issue-no small{display:block;font-family:var(--f-ui);font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.04em}
+.item .body{min-width:0}
+.item h3{font-family:var(--f-body);font-weight:600;font-size:17px;margin:0;line-height:1.35}
+.meta{font-family:var(--f-ui);font-size:13px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta .auth{color:var(--ink);cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.meta .auth:hover{text-decoration-color:var(--accent)}
+.snip{font-size:15px;margin:8px 0 0;color:var(--ink)}
+.snip+.snip{margin-top:4px}
+mark{background:var(--mark);color:inherit;padding:0 1px}
+.actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;font-family:var(--f-ui);font-size:13px}
+.actions a{display:inline-flex;align-items:center;gap:5px;text-decoration:none;border:1px solid var(--line);padding:4px 10px;border-radius:2px;color:var(--ink);background:var(--paper)}
+.actions a:hover{border-color:var(--accent);color:var(--accent)}
+.actions a.dl{border-color:var(--accent);color:var(--accent)}
+.badge{font-family:var(--f-ui);font-size:11px;background:var(--accent-soft);color:var(--accent);padding:1px 7px;border-radius:99px}
+
+.authors-tools{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.authors-tools input{flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);background:var(--paper);border-radius:2px}
+.alist{columns:2 260px;column-gap:28px;margin-top:12px;font-family:var(--f-ui);font-size:15px}
+.alist button{display:flex;justify-content:space-between;gap:10px;width:100%;background:none;border:0;border-bottom:1px dotted var(--line);padding:7px 2px;cursor:pointer;text-align:left;break-inside:avoid}
+.alist button:hover{color:var(--accent)}
+.alist .n{font-variant-numeric:tabular-nums;color:var(--muted)}
+
+.issues{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:14px}
+.icard{background:var(--paper);border:1px solid var(--line);padding:12px;display:grid;gap:6px;align-content:start}
+.icard .top{display:flex;align-items:baseline;gap:8px}
+.icard .num{font-family:var(--f-display);font-size:28px;color:var(--accent);line-height:1}
+.icard .d{font-family:var(--f-ui);font-size:12px;color:var(--muted)}
+.icard details{font-size:14px}
+.icard summary{font-family:var(--f-ui);font-size:13px;cursor:pointer;color:var(--muted)}
+.icard ol{margin:6px 0 0;padding-left:0;list-style:none;display:grid;gap:4px}
+.icard ol li{display:grid;grid-template-columns:24px 1fr;gap:6px;line-height:1.3}
+.icard ol .p{font-family:var(--f-ui);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.empty{padding:28px 0;color:var(--muted);font-family:var(--f-ui)}
+.help{font-family:var(--f-ui);font-size:13px;color:var(--muted);background:var(--paper);border:1px solid var(--line);padding:12px 14px;margin-top:16px;line-height:1.5}
+footer{margin-top:36px;font-family:var(--f-ui);font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.more{margin-top:14px}
+@media (max-width:520px){.item{grid-template-columns:52px 1fr;gap:10px}.issue-no{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap" lang="el">
+  <header class="mast">
+    <div class="eyebrow">Λαογραφικός Όμιλος Πολυγύρου · ISSN 2623-4904</div>
+    <h1>Αρχείο Περιοδικού <span>Πολύγυρος</span></h1>
+    <p class="sub" id="stats">90 τεύχη · 2000–2017</p>
+  </header>
+
+  <form class="searchbar" id="f" role="search">
+    <input id="q" type="search" placeholder="π.χ. Επανάσταση 1821, Κανατάς, Μακεδονικός Αγώνας" autocomplete="off" aria-label="Αναζήτηση">
+    <button class="btn" type="submit">Αναζήτηση</button>
+  </form>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t-search" aria-selected="true" data-tab="search">Αποτελέσματα</button>
+    <button role="tab" id="t-authors" aria-selected="false" data-tab="authors">Αρθρογράφοι</button>
+    <button role="tab" id="t-issues" aria-selected="false" data-tab="issues">Όλα τα τεύχη</button>
+  </nav>
+
+  <section id="p-search">
+    <div class="status" id="status"></div>
+    <div class="progress" id="prog" hidden><i></i></div>
+    <div id="results"></div>
+  </section>
+  <section id="p-authors" hidden>
+    <div class="authors-tools">
+      <input id="af" type="search" placeholder="Φίλτρο ονόματος" aria-label="Φίλτρο αρθρογράφων">
+      <span class="status" id="acount"></span>
+    </div>
+    <div class="alist" id="alist"></div>
+  </section>
+  <section id="p-issues" hidden>
+    <div class="issues" id="ilist"></div>
+  </section>
+
+  <footer>
+    Η αναζήτηση γίνεται στο πλήρες κείμενο όλων των τευχών, χωρίς διάκριση τόνων και καταλήξεων. Οι σελίδες αντιστοιχούν στην αρίθμηση του έντυπου τεύχους.
+  </footer>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const DATA='';
+let IDX=null, TEXT={}, NTEXT={}, loadedAll=false, loading=null;
+
+// ---------- normalisation (length-preserving, 1 char -> 1 char)
+const cmap=new Map();
+function nc(ch){let r=cmap.get(ch);if(r!==undefined)return r;
+  r=ch.toLowerCase().normalize('NFD')[0]||ch; if(r==='ς')r='σ'; if(r.length!==1)r=ch; cmap.set(ch,r);return r}
+function norm(s){let o='';for(const ch of s)o+=nc(ch);return o}
+// String iteration by code points: keep a parallel index for snippets
+function normWithMap(s){let o='',idx=[];for(let i=0;i<s.length;i++){const c=s[i];o+=nc(c);idx.push(i)}return o}
+const STOP=new Set(['του','τησ','το','τη','την','τον','των','τα','τουσ','τισ','η','ο','οι','και','κι','στο','στη','στην','στον','στα','στουσ','με','για','σε','απο','ωσ','που','ενα','μια','ενασ','δια','κατα','περι']);
+function stem(w){if(/^\d+$/.test(w))return w;
+  for(const s of ['ου','οσ','ησ','ασ','εσ','α','η','ο','ε','ι','υ','σ'])if(w.length>4&&w.endsWith(s))return w.slice(0,-s.length);
+  return w}
+function tokens(q){
+  let t=norm(q).replace(/[^\p{L}\p{N}]+/gu,' ').trim().split(/\s+/).filter(x=>x&&!STOP.has(x));
+  const hasRev=t.some(x=>x.startsWith('επαναστ'));
+  t=t.map(x=>(x==='21'&&hasRev)?'1821':x);
+  return [...new Set(t)].map(stem);
+}
+const LET='[\\p{L}\\p{N}]';
+function rx(stems){return stems.map(s=>new RegExp('(?<!'+LET+')'+s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+(/^\d+$/.test(s)?'(?!\\p{N})':'\\p{L}*'),'gu'))}
+
+// ---------- helpers
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dl=id=>'https://drive.google.com/uc?export=download&id='+id;
+const view=id=>'https://drive.google.com/file/d/'+id+'/view';
+function hl(text,res){ // highlight in a short original string
+  const n=norm(text);let marks=[];
+  for(const r of res){r.lastIndex=0;let m;while((m=r.exec(n))){marks.push([m.index,m.index+m[0].length]);if(!m[0].length)r.lastIndex++}}
+  if(!marks.length)return esc(text);
+  marks.sort((a,b)=>a[0]-b[0]);let o='',p=0;
+  for(const [a,b] of marks){if(a<p)continue;o+=esc(text.slice(p,a))+'<mark>'+esc(text.slice(a,b))+'</mark>';p=b}
+  return o+esc(text.slice(p));
+}
+function snippet(orig,nrm,res,max=2){
+  let pos=[];for(const r of res){r.lastIndex=0;const m=r.exec(nrm);if(m)pos.push(m.index)}
+  pos.sort((a,b)=>a-b);const out=[];let last=-1e9;
+  for(const p of pos){if(p-last<220)continue;last=p;
+    let a=Math.max(0,p-110),b=Math.min(orig.length,p+170);
+    while(a>0&&orig[a]!==' ')a--;while(b<orig.length&&orig[b]!==' ')b++;
+    out.push((a>0?'… ':'')+hl(orig.slice(a,b).trim(),res)+(b<orig.length?' …':''));
+    if(out.length>=max)break}
+  return out;
+}
+function actions(iss,p){
+  return `<div class="actions"><a href="${view(iss.id)}" target="_blank" rel="noopener">Άνοιγμα τεύχους${p?` (σελ. ${p})`:''}</a><a class="dl" href="${dl(iss.id)}" target="_blank" rel="noopener">Λήψη PDF</a></div>`;
+}
+function authHtml(a){
+  if(!a.k||!a.k.length)return a.a?`<span>${esc(a.a)}</span>`:'';
+  return a.k.map(k=>`<span class="auth" data-k="${esc(k)}">${esc(IDX.authors[k].name)}</span>`).join(' · ');
+}
+function issNo(iss){return `<div class="issue-no">${iss.n}<small>${esc(iss.y||'')}</small></div>`}
+function pr(a){return a.q>a.p?`σελ. ${a.p}–${a.q}`:`σελ. ${a.p}`}
+
+// ---------- tabs
+function tab(name){
+  for(const b of document.querySelectorAll('nav.tabs button'))b.setAttribute('aria-selected',b.dataset.tab===name);
+  for(const s of ['search','authors','issues'])$('#p-'+s).hidden=s!==name;
+  try{localStorage.setItem('pg-tab',name)}catch(e){}
+}
+document.querySelector('nav.tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)tab(b.dataset.tab)});
+
+// ---------- full-text loading
+async function loadAll(){
+  if(loadedAll)return; if(loading)return loading;
+  const bar=$('#prog'),fill=bar.firstElementChild;bar.hidden=false;let done=0;
+  loading=Promise.all(IDX.issues.map(async iss=>{
+    try{const r=await fetch(DATA+'t'+String(iss.n).padStart(3,'0')+'.json');const j=await r.json();
+      TEXT[iss.n]=j.pages;const np={};for(const k in j.pages)np[k]=normWithMap(j.pages[k]);NTEXT[iss.n]=np;}catch(e){TEXT[iss.n]={};NTEXT[iss.n]={}}
+    done++;fill.style.width=(done/IDX.issues.length*100)+'%';
+    $('#status').textContent=`Φόρτωση κειμένων: ${done} από ${IDX.issues.length} τεύχη…`;
+  })).then(()=>{loadedAll=true;bar.hidden=true});
+  return loading;
+}
+
+// ---------- search
+let lastQ='';
+async function search(q,{author}={}){
+  tab('search');
+  const R=$('#results');
+  if(author){showAuthor(author);return}
+  q=q.trim();lastQ=q;
+  if(!q){R.innerHTML='';$('#status').textContent='';intro();return}
+  const st=tokens(q);
+  if(!st.length){R.innerHTML='<div class="empty">Γράψτε τουλάχιστον μία λέξη με περιεχόμενο.</div>';return}
+  const res=rx(st);
+  // 1) title/author matches
+  const tHits=[];const yrs=rx(st.filter(x=>/^1[5-9]\d\d$/.test(x)));
+  for(const iss of IDX.issues)iss.arts.forEach((a,j)=>{
+    const hay=norm(a.t+' '+(a.a||'')+' '+(a.k||[]).map(k=>IDX.authors[k].name).join(' '));
+    if(res.every(r=>{r.lastIndex=0;return r.test(hay)}))tHits.push({iss,a,j});
+    else if(yrs.length&&yrs.some(r=>{r.lastIndex=0;return r.test(hay)}))tHits.push({iss,a,j});
+  });
+  render(q,res,tHits,null);
+  await loadAll(); if(q!==lastQ)return;
+  // 2) full text, grouped by article
+  const groups=new Map();
+  for(const iss of IDX.issues){
+    const P=TEXT[iss.n]||{},N=NTEXT[iss.n]||{};
+    for(const pg in N){
+      const n=N[pg];if(!res.every(r=>{r.lastIndex=0;return r.test(n)}))continue;
+      let cnt=0;for(const r of res){r.lastIndex=0;cnt+=(n.match(r)||[]).length}
+      const p=+pg;let ai=-1;
+      iss.arts.forEach((a,j)=>{if(p>=a.p&&p<=a.q&&(ai<0||a.p>=iss.arts[ai].p))ai=j});
+      const key=iss.n+':'+(ai>=0?'a'+ai:'p'+p);
+      let g=groups.get(key);if(!g){g={iss,ai,pages:[],cnt:0,snips:[]};groups.set(key,g)}
+      g.pages.push(p);g.cnt+=cnt;
+      if(g.snips.length<2)g.snips.push(...snippet(P[pg],n,res,2-g.snips.length));
+    }
+  }
+  render(q,res,tHits,[...groups.values()]);
+}
+const SHOW=40;
+function render(q,res,tHits,groups){
+  const R=$('#results');let h='';
+  const inTitle=new Set(tHits.map(x=>x.iss.n+':a'+x.j));
+  if(tHits.length){
+    h+=`<h2 class="sec">Στον τίτλο ή στον αρθρογράφο · ${tHits.length}</h2><div class="list">`;
+    for(const {iss,a} of tHits)h+=`<div class="item">${issNo(iss)}<div class="body"><h3>${hl(a.t,res)}</h3><div class="meta">${authHtml(a)}<span>Τεύχος ${iss.n} · ${esc(iss.d)} · ${pr(a)}</span></div>${actions(iss,a.p)}</div></div>`;
+    h+='</div>';
+  }
+  if(groups===null){h+='';$('#status').textContent='Αναζήτηση στο πλήρες κείμενο…'}
+  else{
+    groups=groups.filter(g=>!inTitle.has(g.iss.n+':a'+g.ai));
+    groups.sort((a,b)=>b.cnt-a.cnt||a.iss.n-b.iss.n);
+    const nIss=new Set(groups.map(g=>g.iss.n)).size;
+    $('#status').textContent=groups.length||tHits.length?`«${q}»: ${tHits.length} άρθρα με τον όρο στον τίτλο · αναφορές σε ${groups.length} ακόμη άρθρα/σελίδες από ${nIss} τεύχη`:'';
+    if(groups.length){
+      h+=`<h2 class="sec">Αναφορές μέσα στο κείμενο · ${groups.length}</h2><div class="list" id="glist">`;
+      h+=groups.map((g,i)=>gItem(g,i>=SHOW)).join('');
+      h+='</div>';
+      if(groups.length>SHOW)h+=`<button class="btn ghost more" id="more">Εμφάνιση όλων (${groups.length})</button>`;
+    }
+    if(!groups.length&&!tHits.length)h=`<div class="empty">Δεν βρέθηκε «${esc(q)}» σε κανένα τεύχος. Δοκιμάστε λιγότερες λέξεις ή διαφορετική ορθογραφία.</div>`;
+  }
+  R.innerHTML=h;
+  const m=$('#more');if(m)m.onclick=()=>{for(const el of R.querySelectorAll('.item[hidden]'))el.hidden=false;m.remove()};
+}
+function gItem(g,hide){
+  const iss=g.iss,a=g.ai>=0?iss.arts[g.ai]:null;const ps=[...new Set(g.pages)].sort((x,y)=>x-y);
+  const title=a?esc(a.t):`Σελίδα ${ps[0]}`;
+  return `<div class="item"${hide?' hidden':''}>${issNo(iss)}<div class="body"><h3>${title}</h3><div class="meta">${a?authHtml(a):''}<span>Τεύχος ${iss.n} · ${esc(iss.d)} · σελ. ${ps.join(', ')}</span><span class="badge">${g.cnt} ${g.cnt===1?'αναφορά':'αναφορές'}</span></div>${g.snips.map(s=>`<p class="snip">${s}</p>`).join('')}${actions(iss,ps[0])}</div></div>`;
+}
+function showAuthor(k){
+  const A=IDX.authors[k];if(!A)return;tab('search');
+  const items=A.arts.map(([n,j])=>{const iss=IDX.issues[n-1];return{iss,a:iss.arts[j]}});
+  $('#status').textContent=`${A.name}: ${items.length} άρθρα σε ${new Set(items.map(x=>x.iss.n)).size} τεύχη`;
+  let h=`<h2 class="sec">Άρθρα του/της ${esc(A.name)}</h2><div class="list">`;
+  for(const {iss,a} of items)h+=`<div class="item">${issNo(iss)}<div class="body"><h3>${esc(a.t)}</h3><div class="meta">${authHtml(a)}<span>Τεύχος ${iss.n} · ${esc(iss.d)} · ${pr(a)}</span></div>${actions(iss,a.p)}</div></div>`;
+  h+='</div><p class="help">Η λίστα βασίζεται στα περιεχόμενα κάθε τεύχους. Για να βρείτε και κείμενα όπου απλώς αναφέρεται το όνομα, γράψτε το επώνυμο στην αναζήτηση.</p>';
+  $('#results').innerHTML=h;lastQ='';
+}
+document.addEventListener('click',e=>{const a=e.target.closest('.auth');if(a){showAuthor(a.dataset.k);window.scrollTo({top:$('nav.tabs').offsetTop-10,behavior:'smooth'})}});
+
+// ---------- authors tab
+function renderAuthors(){
+  const f=norm($('#af').value.trim());
+  const list=Object.entries(IDX.authors).filter(([k,a])=>!f||norm(a.name).includes(f)).sort((x,y)=>y[1].c-x[1].c||x[1].name.localeCompare(y[1].name,'el'));
+  $('#acount').textContent=`${list.length} αρθρογράφοι`;
+  $('#alist').innerHTML=list.map(([k,a])=>`<button data-k="${esc(k)}"><span>${esc(a.name)}</span><span class="n">${a.c}</span></button>`).join('');
+}
+$('#af').addEventListener('input',renderAuthors);
+$('#alist').addEventListener('click',e=>{const b=e.target.closest('button');if(b)showAuthor(b.dataset.k)});
+
+// ---------- issues tab
+function renderIssues(){
+  $('#ilist').innerHTML=IDX.issues.slice().reverse().map(iss=>`<div class="icard"><div class="top"><span class="num">${iss.n}</span><span class="d">${esc(iss.d||'')}</span></div>
+  ${iss.arts.length?`<details><summary>Περιεχόμενα (${iss.arts.length})</summary><ol>${iss.arts.map(a=>`<li><span class="p">${a.p}</span><span>${esc(a.t)}${a.k&&a.k.length?` <span class="d">· ${a.k.map(k=>esc(IDX.authors[k].name)).join(', ')}</span>`:''}</span></li>`).join('')}</ol></details>`:'<span class="d">Τα περιεχόμενα δεν είναι διαθέσιμα</span>'}
+  ${actions(iss)}</div>`).join('');
+}
+
+// ---------- intro state
+function intro(){
+  $('#results').innerHTML=`<p class="help">Γράψτε μια λέξη ή φράση για να βρείτε σε ποια τεύχη και σε ποια άρθρα εμφανίζεται. Η αναζήτηση δεν επηρεάζεται από τόνους ή καταλήξεις (π.χ. «Κανατάς» βρίσκει και «Κανατά»). Πατήστε το όνομα ενός αρθρογράφου για να δείτε όλα του τα άρθρα. Το κουμπί «Λήψη PDF» κατεβάζει ολόκληρο το τεύχος.</p>`;
+}
+$('#f').addEventListener('submit',e=>{e.preventDefault();search($('#q').value)});
+
+// ---------- boot
+fetch(DATA+'index.json').then(r=>r.json()).then(j=>{
+  IDX=j;
+  const na=IDX.issues.reduce((s,i)=>s+i.arts.length,0);
+  $('#stats').textContent=`${IDX.issues.length} τεύχη · 2000–2017 · ${na} άρθρα · ${Object.keys(IDX.authors).length} αρθρογράφοι`;
+  renderAuthors();renderIssues();intro();
+  let q=null;try{q=new URLSearchParams(location.search).get('q')}catch(e){}
+  if(q){$('#q').value=q;search(q)}
+  else{let t=null;try{t=localStorage.getItem('pg-tab')}catch(e){} if(t&&t!=='search')tab(t)}
+}).catch(()=>{$('#results').innerHTML='<div class="empty">Δεν φορτώθηκε το ευρετήριο. Ανανεώστε τη σελίδα.</div>'});
+// auto-height when embedded in the blog (iframe)
+try{if(window.parent!==window){const post=()=>parent.postMessage({type:'pg-height',h:document.documentElement.scrollHeight},'*');new ResizeObserver(post).observe(document.body);post();}}catch(e){}
+})();
+</script>
+
+</body>
+</html>
